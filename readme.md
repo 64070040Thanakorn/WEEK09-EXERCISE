@@ -2,9 +2,9 @@
 
 แบบฝึกหัดสัปดาห์ที่ 9 Express / MySql
 
-##Tutorial
+## Tutorial
 
-####1. Update
+#### 1. Update
 1. สร้าง Router ```/blogs/update/:id``` ใหม่ในไฟล์ ```/routes/blog.js```
 
 ```javascript
@@ -32,7 +32,7 @@ res.json({
 next(error)
 ```
 
-#####Final code in Update
+##### Final code in Update
 
 ```javascript
 router.post('/blogs/:id', (req, res, next) => {
@@ -47,7 +47,7 @@ router.post('/blogs/:id', (req, res, next) => {
 
 ----
 
-####2. Delete
+#### Delete
 
 **เงื่อนไข**:ในการจะลบแต่ละ Blog จะต้องทำการเช็กว่า Blog นั้นมี comment หรือไม่ **หากมี comment** อยู่จะต้องแสดง message ว่า *"Can't Delete. This Blog has a comment"* แต่ถ้า Blog นั้น **ไม่มี Comment** ก็จะลบตามปกติ
 
@@ -94,7 +94,7 @@ res.json({
 next(error)
 ```
 
-#####Final code in Delete
+##### Final code in Delete
 
 ```javascript
 router.delete('/blogs/:id', function (req, res) {
@@ -112,7 +112,7 @@ router.delete('/blogs/:id', function (req, res) {
 });
 ```
 ----
-##Exercise
+## Exercise
 
 1. สร้าง Route สำหรับการเพิ่ม like โดยจะ**เพิ่มขึ้นทีละ 1** เมื่อถูกยิง Request โดยจะส่ง `id` ของ Blog ไปเพื่อบอกว่าจะเพิ่ม like ให้ Blog ไหน
 **Method :** PUT
