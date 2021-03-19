@@ -172,20 +172,20 @@ ___
 **Method :** POST
 **URL :**  /comments
 * **Body**
-```json
+```javascript
 {
-    comment: "new comment",
-    like: 0,
-    comment_date: "2021-12-31",
-    comment_by_id: null,
-    blog_id: 1 // blog id
+    "comment": "new comment",
+    "like": 0,
+    "comment_date": "2021-12-31",
+    "comment_by_id": null,
+    "blog_id": 1 // blog id
 }
 ```
 * **Response**
 
-```json
+```javascript
 {
-    message:"Add Comment at Blog id 1"
+    "message":"Add Comment at Blog id 1"
 }
 ```
 ___
@@ -193,20 +193,20 @@ ___
 **Method :** PUT
 **URL :**  /comments/:id
 * **Body**
-```json
+```javascript
 {
-    comment: "edit comment",
-    like: 0,
-    comment_date: "2021-12-31",
-    comment_by_id: null,
-    blog_id: 1 // blog id
+    "comment": "edit comment",
+    "like": 0,
+    "comment_date": "2021-12-31",
+    "comment_by_id": null,
+    "blog_id": 1 // blog id
 }
 ```
 * **Response**
 
-```json
+```javascript
 {
-    message: "Edit Comment at id 1"
+    "message": "Edit Comment at id 1"
 }
 ```
 ___
@@ -214,9 +214,9 @@ ___
 **Method :** DELETE
 **URL :**  /comments/:id
 **Response**
-```json
+```javascript
 {
-    message: "Delete Comment id 1 Comlete"
+    "message": "Delete Comment id 1 Comlete"
 }
 ```
 
@@ -226,7 +226,7 @@ ___
 **Response**
 ```javascript
 {
-    message:"Add like in Comment id 2, Current Like is 12" // 12 is a number of like after add like
+    "message":"Add like in Comment id 2, Current Like is 12" // 12 is a number of like after add like
 }
 ```
 
