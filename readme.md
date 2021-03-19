@@ -47,7 +47,7 @@ router.post('/blogs/:id', (req, res, next) => {
 
 ----
 
-#### Delete
+#### 2. Delete
 
 **เงื่อนไข**:ในการจะลบแต่ละ Blog จะต้องทำการเช็กว่า Blog นั้นมี comment หรือไม่ **หากมี comment** อยู่จะต้องแสดง message ว่า *"Can't Delete. This Blog has a comment"* แต่ถ้า Blog นั้น **ไม่มี Comment** ก็จะลบตามปกติ
 
