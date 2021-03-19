@@ -115,9 +115,9 @@ router.delete('/blogs/:id', function (req, res) {
 ## Exercise
 
 1. สร้าง Route สำหรับการเพิ่ม like โดยจะ**เพิ่มขึ้นทีละ 1** เมื่อถูกยิง Request โดยจะส่ง `id` ของ Blog ไปเพื่อบอกว่าจะเพิ่ม like ให้ Blog ไหน
-**Method :** PUT
-**URL :**  /blog/addlike/:id
-**Response :** 
+* **Method :** PUT
+* **URL :**  /blog/addlike/:id
+* **Response :** 
 ```javascript
 {
     message:"Add like in Blog 2, Current Like is 12" // 12 is a number of like after add like
@@ -127,9 +127,9 @@ router.delete('/blogs/:id', function (req, res) {
 > hint : ให้ไปดึงจำนวน like ปัจจุบันออกมาก่อน นำมา+1 แล้ว Update ค่าแทนค่าเดิม
 ____
 2. สร้าง Route สำหรับการค้าหาชื่อ Blog ที่มีอยู่ใน Database โดยผลลัพท์จากการ Search จะมีแค่ Blog ที่มีข้อความจาก params `search` โดยในตัวอย่างจะเป็นการ Search ด้วยคำว่า web จะสังเกตว่า Blog ที่ออกมาทุกอันจะมีคำว่า web อยู่ใน Title ด้วย
-**Method :** GET
-**URL :**  /blogs/search/:search
-**Response :** 
+* **Method :** GET
+* **URL :**  /blogs/search/:search
+* **Response :** 
 ```javascript
 {
     "blog":[
@@ -169,8 +169,8 @@ ____
 > hint : ตอนที่ Query SQL ให้ใช้ LIKE ดูการใช้ได้[ที่นี่](https://www.w3schools.com/sql/sql_like.asp)
 ___
 3. สร้าง Route สำหรับเพิ่มข้อมูล comment
-**Method :** POST
-**URL :**  /comments
+* **Method :** POST
+* **URL :**  /comments
 * **Body**
 ```javascript
 {
@@ -190,8 +190,8 @@ ___
 ```
 ___
 4. สร้าง Route สำหรับแก้ไขข้อมูลของ Comment โดย `id` คือ id ***ของ comment ที่ต้องการแก้ไข***
-**Method :** PUT
-**URL :**  /comments/:id
+* **Method :** PUT
+* **URL :**  /comments/:id
 * **Body**
 ```javascript
 {
@@ -211,9 +211,9 @@ ___
 ```
 ___
 5. สร้าง Route สำหรับลบ comment โดย `id` คือ id ***ของ comment ที่ต้องการลบ***
-**Method :** DELETE
-**URL :**  /comments/:id
-**Response**
+* **Method :** DELETE
+* **URL :**  /comments/:id
+* **Response**
 ```javascript
 {
     "message": "Delete Comment id 1 Comlete"
@@ -221,9 +221,9 @@ ___
 ```
 
 6. สร้าง Route สำหรับเพิ่มยอด like ให้กับ comment **เพิ่มขึ้นทีละ 1** เมื่อถูกยิง Request โดย `id` คือ id ***ของ comment ที่ต้องการเพิ่มยอดไลค์***
-**Method :** PUT
-**URL :**  /comments/addlike/:id
-**Response**
+* **Method :** PUT
+* **URL :**  /comments/addlike/:id
+* **Response**
 ```javascript
 {
     "message":"Add like in Comment id 2, Current Like is 12" // 12 is a number of like after add like
