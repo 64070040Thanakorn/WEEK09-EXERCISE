@@ -4,6 +4,22 @@
 
 ## Tutorial
 
+#### 0. Promisify
+เราจะใช้ Promisify มาช่วยให้การเขียน Query และ Promise ให้สามารถเข้าใจได้ง่ายขึ้น โดยตัว Promisify จะทำให้ ```conn.query()``` เป็น Promise ให้เลย มีขั้นตอนตั้งค่าและใช้งาน ดังนี้
+1. ทำการประกาศตัว Promisify ในไฟล์แต่ละ Route ดังนี้
+```javascript
+const { promisify } = require('util');
+```
+2. สร้าง Instance ของการ Query ข้อมูล
+```javascript
+const myQuery = promisify(conn.query).bind(conn)
+```
+3. เมื่อต้องการจะใช้งาน
+```javascript
+let result = await myQuery('SELECT * FROM blogs')
+res.json(result)
+```
+
 #### 1. Update
 1. สร้าง Router ```/blogs/update/:id``` ใหม่ในไฟล์ ```/routes/blog.js```
 
