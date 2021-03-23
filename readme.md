@@ -4,23 +4,9 @@
 
 ## Tutorial
 
-#### 0. Promisify
-เราจะใช้ Promisify มาช่วยให้การเขียน Query และ Promise ให้สามารถเข้าใจได้ง่ายขึ้น โดยตัว Promisify จะทำให้ ```conn.query()``` เป็น Promise ให้เลย มีขั้นตอนตั้งค่าและใช้งาน ดังนี้
-1. ทำการประกาศตัว Promisify ในไฟล์แต่ละ Route ดังนี้
-```javascript
-const { promisify } = require('util');
-```
-2. สร้าง Instance ของการ Query ข้อมูล
-```javascript
-const myQuery = promisify(conn.query).bind(conn)
-```
-3. เมื่อต้องการจะใช้งาน
-```javascript
-let result = await myQuery('SELECT * FROM blogs')
-res.json(result)
-```
+#### 1. Update Blog
 
-#### 1. Update
+####วิธีทำ
 1. สร้าง Router ```/blogs/update/:id``` ใหม่ในไฟล์ ```/routes/blog.js```
 
 ```javascript
@@ -29,43 +15,78 @@ router.post('/blogs/update/:id', (req, res, next) => {
 }
 ```
 
-2. สร้าง try catch ใน arrow function
-3. ใน try ให้เรียกใช้ ```
-myQuery()```ให้อยู่ในรูปแบบ asyn await โดยส่ง parameter ไปด้วยดังนี้
+2. สร้าง transection ขึ้นมา
 
 ```javascript
-'UPDATE blogs SET title=?,content=?, status=?, pinned=?, blogs.like=?, create_by_id=? WHERE id=?', [req.body.title, req.body.content, req.body.status, req.body.pinned, 0, null, req.params.id]
-```
-4. ใน try กำหนด response ออกมา
-```javascript
-res.json({ 
-    message: "Update Blog id " + req.params.id + " Complete" 
-})
+const conn = await pool.getConnection()
+await conn.beginTransaction();
 ```
 
-5. ใน catch
+3. สร้าง try catch
+4. ใน try ให้สร้างตัวแปรสำหรับเก็บข้อมูลของ file ที่อาจจะอัปโหลดแนบมาด้วย
 ```javascript
-next(error)
+const file = req.file;
+```
+5. ในกรณีที่มีไฟล์รูปภาพอัปโหลดขึ้นมาด้วย แสดงว่าจะต้องอัปเดทรูปภาพด้วย โดยให้สร้าง if มาดักไว้ และทำการ Update Path ของรูปที่อยู่ในตาราง images
+```javascript
+if (file) {
+    await conn.query("UPDATE images SET file_path=? WHERE id=?",[file.path, req.params.id])
+}
+```
+
+6. ต่อมาก็ทำการอัปเดทข้อมูลอื่นในตาราง blogs
+```javascript
+await conn.query('UPDATE blogs SET title=?,content=?, pinned=?, blogs.like=?, create_by_id=? WHERE id=?', [req.body.title, req.body.content, req.body.pinned, req.body.like, null, req.params.id])
+```
+
+7. Commit Transection
+```javascript
+conn.commit()
+```
+
+8. ถ้า Update สำเร็จให้ Response ออกมา
+```javascript
+res.json({ message: "Update Blog id " + req.params.id + " Complete" })
+```
+
+9. หากการ Update เกิด Error ขึ้นมาขั้นตอนใดขั้นตอนหนึ่ง ให้ทำการ Rollback Transection และ Return error ออกมา
+```javascript
+await conn.rollback();
+return next(error)
 ```
 
 ##### Final code in Update
 
 ```javascript
-router.post('/blogs/:id', (req, res, next) => {
-    try {
-        await myQuery('UPDATE blogs SET title=?,content=?, status=?, pinned=?, blogs.like=?, create_by_id=? WHERE id=?', [req.body.title, req.body.content, req.body.status, req.body.pinned, 0, null, req.params.id])
-        res.json({ message: "Update Blog id " + req.params.id + " Complete" })
-    } catch (error) {
-        next(error)
+router.put('/blogs/:id', upload.single('myImage'), async (req, res, next) => {
+
+  const conn = await pool.getConnection()
+  await conn.beginTransaction();
+
+  try {
+    const file = req.file;
+
+    if (file) {
+      await conn.query(
+        "UPDATE images SET file_path=? WHERE id=?",
+        [file.path, req.params.id])
     }
-}
+
+    await conn.query('UPDATE blogs SET title=?,content=?, pinned=?, blogs.like=?, create_by_id=? WHERE id=?', [req.body.title, req.body.content, req.body.pinned, req.body.like, null, req.params.id])
+    conn.commit()
+    res.json({ message: "Update Blog id " + req.params.id + " Complete" })
+  } catch (error) {
+    await conn.rollback();
+    return next(error)
+  }
+});
 ```
 
 ----
 
 #### 2. Delete
 
-**เงื่อนไข**:ในการจะลบแต่ละ Blog จะต้องทำการเช็กว่า Blog นั้นมี comment หรือไม่ **หากมี comment** อยู่จะต้องแสดง message ว่า *"Can't Delete. This Blog has a comment"* แต่ถ้า Blog นั้น **ไม่มี Comment** ก็จะลบตามปกติ
+**เงื่อนไข**:ในการจะลบแต่ละ Blog จะต้องทำการเช็กว่า Blog นั้นมี comment หรือไม่ **หากมี comment** อยู่จะต้องแสดง message ว่า *"Can't Delete. This Blog has a comment"* แต่ถ้า Blog นั้น **ไม่มี Comment** ก็จะลบข้อมูลออกจากตาราง blogs และ**ลบข้อมูลรูปภาพออกจากตาราง images** ด้วย
 
 1. สร้าง Router `/blog/:id` ใหม่ในไฟล์ `/routes/blog.js`
 
@@ -74,57 +95,75 @@ router.delete('/blogs/:id', function (req, res) {
   // delete blog code here
 });
 ```
-2. สร้าง try catch ใน arrow function
-3. *ในขั้นตอนแรกจะต้องเช็กว่ามี comment หรือไม่* ใน try ให้เรียกใช้ ```myQuery()```ให้อยู่ในรูปแบบ asyn await โดยส่ง parameter ไปด้วยดังนี้
+2. สร้าง Transection ขึ้นมา
 ```javascript
-// หา comment ที่มี blog_id ตาม id ที่ส่งมาใน request
-'SELECT * FROM comments WHERE blog_id=?', [req.params.id]
+const conn = await pool.getConnection()
+await conn.beginTransaction();
 ```
-4. สร้างตัวแปรมารับผลลัพท์ที่ได้จากการ Query
+3. สร้าง try catch
+4. ใน try ให้เลือก Comment ที่มี `blog_id` เท่ากับ `params` ที่รับเข้ามา และเก็บผลลัพท์อยู่ในตัวแปรที่ชื่อว่า `comments`
+```javascript
+let comments = await conn.query('SELECT * FROM comments WHERE blog_id=?', [req.params.id])
+```
+5. เช็กว่าถ้าเกิด `comments` ที่ได้ ถ้ามีมากกว่า 0 แสดงว่า blog นั้นมี comment อยู่ ให้ Response เป็นสถานะ 409 และมีข้อความว่า *"Can't Delete because this blog has comment!!!"*
 
 ```javascript
-let comments = await myQuery(...)
-```
-5. เช็กจำนวนของ comment
-```javascript
-if (comments.length > 0) {  // up2u condition check
-    res.status(400).json({ 
-        message: "This Blog has comment!!!"
-    })
-} else {
-    // code in else condition here
+if (comments[0].length > 0) {
+    res.status(409).json({ message: "Can't Delete because this blog has comment!!!" })
+} else { 
+    // continue delete ...
 }
 ```
-6. *ในกรณีที่ไม่มี comment* ให้เรียกใช้ `myQuery()` ให้อยู่ในรูปแบบ asyn await โดยส่ง parameter ไปด้วยดังนี้
+6. ถ้า post นั้นไม่มี comment ก็ให้ลบข้อมูลที่อยู่ในตาราง blogs และ images
 ```javascript
-'DELETE FROM blogs WHERE id=?', [req.params.id]
+await conn.query('DELETE FROM blogs WHERE id=?;', [req.params.id]) // delete blog
+await conn.query('DELETE FROM images WHERE blog_id=?;', [req.params.id]) // delete image
 ```
-7. และ response ออกมา
+
+7. Commit Transection
 ```javascript
-res.json({ 
-    message: 'Delete Blog id ' + req.params.id + ' complete' 
-})
+conn.commit()
 ```
-8. ใน catch
+
+8. ถ้า Delete สำเร็จให้ Response ออกมา
 ```javascript
-next(error)
+res.json({ message: 'Delete Blog id ' + req.params.id + ' complete' })
 ```
+
+9. หากการ Delete เกิด Error ขึ้นมาขั้นตอนใดขั้นตอนหนึ่ง ให้ทำการ Rollback Transection และ Return error ออกมา
+```javascript
+await conn.rollback();
+return next(error)
+```
+
 
 ##### Final code in Delete
 
 ```javascript
-router.delete('/blogs/:id', function (req, res) {
-    try {
-        let comments = await myQuery('SELECT * FROM comments WHERE blog_id=?', [req.params.id])
-        if (comments.length > 0) {
-            res.status(409).json({message: "This Blog has comment!!!" })
-        } else {
-            await myQuery('DELETE FROM blogs WHERE id=?;', [req.params.id])
-            res.json({ message: 'Delete Blog id ' + req.params.id + 'complete' })
-        }
-    } catch (error) {
-        next(error)
+router.delete('/blogs/:id', async (req, res, next) => {
+
+  const conn = await pool.getConnection()
+  await conn.beginTransaction();
+
+  try {
+    // check blog has comment?
+    let comments = await conn.query('SELECT * FROM comments WHERE blog_id=?', [req.params.id])
+
+    if (comments[0].length > 0) {
+      res.status(409).json({ message: "Can't Delete because this blog has comment!!!" })
+    } else {
+      await conn.query('DELETE FROM blogs WHERE id=?;', [req.params.id]) // delete blog
+      await conn.query('DELETE FROM images WHERE blog_id=?;', [req.params.id]) // delete image
+      await conn.commit()
+      res.json({ message: 'Delete Blog id ' + req.params.id + ' complete' })
     }
+  } catch (error) {
+    await conn.rollback();
+    next(error);
+  } finally {
+    console.log('finally')
+    conn.release();
+  }
 });
 ```
 ----
@@ -144,7 +183,8 @@ router.delete('/blogs/:id', function (req, res) {
 ____
 2. สร้าง Route สำหรับการค้าหาชื่อ Blog ที่มีอยู่ใน Database โดยผลลัพท์จากการ Search จะมีแค่ Blog ที่มีข้อความจาก params `search` โดยในตัวอย่างจะเป็นการ Search ด้วยคำว่า web จะสังเกตว่า Blog ที่ออกมาทุกอันจะมีคำว่า web อยู่ใน Title ด้วย
 * **Method :** GET
-* **URL :**  /blogs/search/:search
+* **URL :**  /blog-search
+* **Example :** blog-search?title=web
 * **Response :** 
 ```javascript
 {
@@ -192,7 +232,6 @@ ___
 {
     "comment": "new comment",
     "like": 0,
-    "comment_date": "2021-12-31",
     "comment_by_id": null,
     "blog_id": 1 // blog id
 }
@@ -204,6 +243,8 @@ ___
     "message":"Add Comment at Blog id 1"
 }
 ```
+
+> hint : ใน sql สามารถใช้ CURRENT_TIMESTAMP เพื่อให้บันทึกเวลาปัจจุบันได้เลย
 ___
 4. สร้าง Route สำหรับแก้ไขข้อมูลของ Comment โดย `id` คือ id ***ของ comment ที่ต้องการแก้ไข***
 * **Method :** PUT
