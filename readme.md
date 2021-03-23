@@ -117,7 +117,7 @@ router.delete('/blogs/:id', function (req, res) {
     try {
         let comments = await myQuery('SELECT * FROM comments WHERE blog_id=?', [req.params.id])
         if (comments.length > 0) {
-            res.status(400).json({message: "This Blog has comment!!!" })
+            res.status(409).json({message: "This Blog has comment!!!" })
         } else {
             await myQuery('DELETE FROM blogs WHERE id=?;', [req.params.id])
             res.json({ message: 'Delete Blog id ' + req.params.id + 'complete' })
@@ -172,7 +172,7 @@ ____
         {
             "id": 10,
             "title": "Make Website from node js",
-            "content": "Hey guy! Welcaome back to webpro",
+            "content": "Hey guy! Welcome back to webpro",
             "pinned": 0,
             "like": 0,
             "create_date": "2021-03-14T17:00:00.000Z",
