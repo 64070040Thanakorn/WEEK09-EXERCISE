@@ -4,6 +4,172 @@
 
 ## Tutorial
 
+#### 1. Multer ใช้สำรับ Upload รูปภาพ
+
+####วิธีทำ
+
+1. สร้าง Instance สำหรับเรียกใช้ dependencies Multer
+```javascript
+const multer = require('multer')
+```
+
+2. กำหนด config สำหรับ multer
+```javascript
+var storage = multer.diskStorage({
+  destination: function (req, file, callback) {
+    callback(null, './static/uploads') // path to save file
+  },
+  filename: function (req, file, callback) {
+    // set file name
+    callback(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+  }
+})
+```
+
+3. กำหนดตัวแปรสำหรับเรียกใช้งาน
+```javascript
+const upload = multer({ storage: storage })
+```
+
+##### Final code Multer
+```javascript
+// Require multer for file upload
+const multer = require('multer')
+// SET STORAGE
+var storage = multer.diskStorage({
+  destination: function (req, file, callback) {
+    callback(null, './static/uploads')
+  },
+  filename: function (req, file, callback) {
+    callback(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+  }
+})
+const upload = multer({ storage: storage })
+```
+
+___
+
+#### 2. Create Blog
+
+1. สร้าง Router ```/blogs``` ใหม่ในไฟล์ ```/routes/blog.js```
+
+```javascript
+router.post('/blogs', async function (req, res, next) {
+    // create code here
+}
+```
+
+2. แทรก `upload.single('myimage')` ไว้ระหว่าง path กับ callback ของ router โดยตั้งชื่อ key ว่า `'myimage'`จะได้โค้ดตามนี้
+```javascript
+//                    >> insert code here <<
+router.post('/blogs', upload.single('myImage'), async function (req, res, next) {
+    // create code here
+}
+```
+
+3. สร้างตัวแปรสำหรับเก็บข้อมูลของ file ที่อาจจะอัปโหลดแนบมาด้วย
+```javascript
+const file = req.file;
+```
+
+4. เช็กว่ามีไฟล์แนบมากับ Request หรือไม่ ถ้าไม่มีรูปให้แสดง Error สถานะ 400 ออกไป
+```javascript
+if (!file) {
+    const error = new Error("Please upload a file");
+    error.httpStatusCode = 400;
+    return next(error);
+}
+```
+5. สร้างตัวแปรมารับค่าจาก request
+```javascript
+const title = req.body.title;
+const content = req.body.content;
+const status = req.body.status;
+const pinned = req.body.pinned;
+```
+6. สร้าง transection ขึ้นมา
+
+```javascript
+const conn = await pool.getConnection()
+await conn.beginTransaction();
+```
+
+7. สร้าง try catch
+8. ใน try เพิ่มข้อมูลตาราง blogs และประกาศตัวแปร results มารับค่า
+```javascript
+let results = await conn.query(
+        "INSERT INTO blogs(title, content, status, pinned, `like`,create_date) VALUES(?, ?, ?, ?, 0,CURRENT_TIMESTAMP);",
+        [title, content, status, pinned]
+      )
+```
+9. เอาค่า id ของ blog จาก results
+```javascript
+const blogId = results[0].insertId;
+```
+10. เพิ่มข้อมูลในตารางรูปโดยระบุ blog_id (ใช้บอกว่ารูปนี้เป็นของ blog ไหน)
+```javascript
+await conn.query("INSERT INTO images(blog_id, file_path) VALUES(?, ?);",[blogId, file.path])
+```
+
+11. Commit Transection
+```javascript
+conn.commit()
+```
+
+12. Response
+```javascript
+res.send("success!");
+```
+
+13. หากการ Create เกิด Error ขึ้นมาขั้นตอนใดขั้นตอนหนึ่ง ให้ทำการ Rollback Transection และ Return error ออกมา
+```javascript
+await conn.rollback();
+return next(error)
+```
+
+##### Final code in create
+```javascript
+router.post('/blogs', upload.single('myImage'), async function (req, res, next) {
+  if (req.method == "POST") {
+    const file = req.file;
+    if (!file) {
+      const error = new Error("Please upload a file");
+      error.httpStatusCode = 400;
+      return next(error);
+    }
+
+    const title = req.body.title;
+    const content = req.body.content;
+    const status = req.body.status;
+    const pinned = req.body.pinned;
+
+    const conn = await pool.getConnection()
+    // Begin transaction
+    await conn.beginTransaction();
+
+    try {
+      let results = await conn.query(
+        "INSERT INTO blogs(title, content, status, pinned, `like`,create_date) VALUES(?, ?, ?, ?, 0,CURRENT_TIMESTAMP);",
+        [title, content, status, pinned]
+      )
+      const blogId = results[0].insertId;
+
+      await conn.query(
+        "INSERT INTO images(blog_id, file_path) VALUES(?, ?);",
+        [blogId, file.path])
+
+      await conn.commit()
+      res.send("success!");
+    } catch (err) {
+      await conn.rollback();
+      next(err);
+    }
+  }
+});
+```
+
+___
+
 #### 1. Update Blog
 
 ####วิธีทำ
@@ -181,7 +347,7 @@ router.delete('/blogs/:id', async (req, res, next) => {
 
 > hint : ให้ไปดึงจำนวน like ปัจจุบันออกมาก่อน นำมา+1 แล้ว Update ค่าแทนค่าเดิม
 ____
-2. สร้าง Route สำหรับการค้าหาชื่อ Blog ที่มีอยู่ใน Database โดยผลลัพท์จากการ Search จะมีแค่ Blog ที่มีข้อความจาก params `search` โดยในตัวอย่างจะเป็นการ Search ด้วยคำว่า web จะสังเกตว่า Blog ที่ออกมาทุกอันจะมีคำว่า web อยู่ใน Title ด้วย
+2. สร้าง Route สำหรับการค้าหาชื่อ Blog ที่มีอยู่ใน Database โดยผลลัพท์จากการ Search จะมีแค่ Blog ที่มีข้อความจาก params `search` โดยในตัวอย่างจะเป็นการ Search ด้วยคำว่า web จะสังเกตว่า Blog ที่ออกมาทุกอันจะมีคำว่า web อยู่ใน Title ด้วย (Response ยังไม่ต้องดึงข้อมูลรูปออกมา เอาแค่ข้อมูลที่อยู่ในตาราง blog)
 * **Method :** GET
 * **URL :**  /blog-search
 * **Example :** blog-search?title=web
