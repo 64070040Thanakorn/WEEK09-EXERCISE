@@ -434,7 +434,7 @@ ___
 ___
 5. สร้าง Route สำหรับลบ comment โดย `commentId` คือ id ***ของ comment ที่ต้องการลบ***
 * **Method :** DELETE
-* **URL :**  /comments/:id
+* **URL :**  /comments/:commentId
 * **Response**
 ```javascript
 {
