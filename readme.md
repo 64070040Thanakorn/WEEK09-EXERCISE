@@ -173,10 +173,10 @@ ___
 #### 3. Update Blog
 
 ####วิธีทำ
-1. สร้าง Router ```/blogs/update/:id``` ใหม่ในไฟล์ ```/routes/blog.js```
+1. สร้าง Router ```/blogs/:id``` ใหม่ในไฟล์ ```/routes/blog.js```
 
 ```javascript
-router.post('/blogs/update/:id', (req, res, next) => {
+router.put('/blogs/:id', upload.single('myImage'), (req, res, next) => {
   // update blog code here
 }
 ```
@@ -333,11 +333,11 @@ router.delete('/blogs/:id', async (req, res, next) => {
 });
 ```
 ----
-## Exercise
+## !!!Exercise!!!
 
-1. สร้าง Route สำหรับการเพิ่ม like โดยจะ**เพิ่มขึ้นทีละ 1** เมื่อถูกยิง Request โดยจะส่ง `id` ของ Blog ไปเพื่อบอกว่าจะเพิ่ม like ให้ Blog ไหน
+1. สร้าง Route สำหรับการเพิ่ม like โดยจะ**เพิ่มขึ้นทีละ 1** เมื่อถูกยิง Request โดยจะส่ง `blogId` ของ Blog ไปเพื่อบอกว่าจะเพิ่ม like ให้ Blog ไหน
 * **Method :** PUT
-* **URL :**  /blog/addlike/:id
+* **URL :**  /blogs/addlike/:blogId
 * **Response :** 
 ```javascript
 {
@@ -349,8 +349,8 @@ router.delete('/blogs/:id', async (req, res, next) => {
 ____
 2. สร้าง Route สำหรับการค้าหาชื่อ Blog ที่มีอยู่ใน Database โดยผลลัพท์จากการ Search จะมีแค่ Blog ที่มีข้อความจาก params `search` โดยในตัวอย่างจะเป็นการ Search ด้วยคำว่า web จะสังเกตว่า Blog ที่ออกมาทุกอันจะมีคำว่า web อยู่ใน Title ด้วย (Response ยังไม่ต้องดึงข้อมูลรูปออกมา เอาแค่ข้อมูลที่อยู่ในตาราง blog)
 * **Method :** GET
-* **URL :**  /blog-search
-* **Example :** blog-search?title=web
+* **URL :**  /blogs/search
+* **Example :** blogs/search?search=web
 * **Response :** 
 ```javascript
 {
@@ -390,16 +390,15 @@ ____
 ```
 > hint : ตอนที่ Query SQL ให้ใช้ LIKE ดูการใช้ได้[ที่นี่](https://www.w3schools.com/sql/sql_like.asp)
 ___
-3. สร้าง Route สำหรับเพิ่มข้อมูล comment
+3. สร้าง Route สำหรับเพิ่มข้อมูล comment (`blogId` คือ id ของ Blog ที่ต้องการเพิ่ม Comment)
 * **Method :** POST
-* **URL :**  /comments
+* **URL :**  /:blogId/comments
 * **Body**
 ```javascript
 {
     "comment": "new comment",
     "like": 0,
-    "comment_by_id": null,
-    "blog_id": 1 // blog id
+    "comment_by_id": null
 }
 ```
 * **Response**
@@ -412,9 +411,9 @@ ___
 
 > hint : ใน sql สามารถใช้ CURRENT_TIMESTAMP เพื่อให้บันทึกเวลาปัจจุบันได้เลย
 ___
-4. สร้าง Route สำหรับแก้ไขข้อมูลของ Comment โดย `id` คือ id ***ของ comment ที่ต้องการแก้ไข***
+4. สร้าง Route สำหรับแก้ไขข้อมูลของ Comment โดย `commentId` คือ id ***ของ comment ที่ต้องการแก้ไข***
 * **Method :** PUT
-* **URL :**  /comments/:id
+* **URL :**  /comments/:commentId
 * **Body**
 ```javascript
 {
@@ -433,7 +432,7 @@ ___
 }
 ```
 ___
-5. สร้าง Route สำหรับลบ comment โดย `id` คือ id ***ของ comment ที่ต้องการลบ***
+5. สร้าง Route สำหรับลบ comment โดย `commentId` คือ id ***ของ comment ที่ต้องการลบ***
 * **Method :** DELETE
 * **URL :**  /comments/:id
 * **Response**
@@ -443,9 +442,9 @@ ___
 }
 ```
 
-6. สร้าง Route สำหรับเพิ่มยอด like ให้กับ comment **เพิ่มขึ้นทีละ 1** เมื่อถูกยิง Request โดย `id` คือ id ***ของ comment ที่ต้องการเพิ่มยอดไลค์***
+6. สร้าง Route สำหรับเพิ่มยอด like ให้กับ comment **เพิ่มขึ้นทีละ 1** เมื่อถูกยิง Request โดย `commentId` คือ id ***ของ comment ที่ต้องการเพิ่มยอดไลค์***
 * **Method :** PUT
-* **URL :**  /comments/addlike/:id
+* **URL :**  /comments/addlike/:commentId
 * **Response**
 ```javascript
 {
