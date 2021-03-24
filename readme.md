@@ -107,8 +107,10 @@ let results = await conn.query(
 const blogId = results[0].insertId;
 ```
 10. เพิ่มข้อมูลในตารางรูปโดยระบุ blog_id (ใช้บอกว่ารูปนี้เป็นของ blog ไหน)
+
+*file.path.substr(6) - เพื่อตัดคำว่า static ออกจาก path เพื่อเหมาะสำหรับการทำไปแสดงผล*
 ```javascript
-await conn.query("INSERT INTO images(blog_id, file_path) VALUES(?, ?);",[blogId, file.path])
+await conn.query("INSERT INTO images(blog_id, file_path) VALUES(?, ?);",[blogId, file.path.substr(6)])
 ```
 
 11. Commit Transaction
@@ -130,7 +132,6 @@ return next(error)
 ##### Final code in create
 ```javascript
 router.post('/blogs', upload.single('myImage'), async function (req, res, next) {
-  if (req.method == "POST") {
     const file = req.file;
     if (!file) {
       const error = new Error("Please upload a file");
@@ -156,7 +157,7 @@ router.post('/blogs', upload.single('myImage'), async function (req, res, next) 
 
       await conn.query(
         "INSERT INTO images(blog_id, file_path) VALUES(?, ?);",
-        [blogId, file.path])
+        [blogId, file.path.substr(6)])
 
       await conn.commit()
       res.send("success!");
@@ -164,7 +165,6 @@ router.post('/blogs', upload.single('myImage'), async function (req, res, next) 
       await conn.rollback();
       next(err);
     }
-  }
 });
 ```
 

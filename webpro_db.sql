@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: webpro
--- Generation Time: 2564-03-23 23:40:13.1990
+-- Generation Time: 2564-03-24 16:41:03.5400
 -- -------------------------------------------------------------
 
 
@@ -59,6 +59,7 @@ CREATE TABLE `images` (
   `file_path` varchar(200) NOT NULL,
   `upload_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_by_id` int(11) DEFAULT NULL,
+  `main` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
@@ -87,10 +88,10 @@ INSERT INTO `comments` (`id`, `blog_id`, `comment`, `like`, `comment_date`, `com
 ('1', '1', 'I love your blog!', '0', '2021-03-09 05:14:41', NULL),
 ('2', '1', 'Cool :)', '0', '2021-03-09 05:14:54', NULL);
 
-INSERT INTO `images` (`id`, `blog_id`, `file_path`, `upload_date`, `update_by_id`) VALUES
-('1', '1', 'static/uploads/cats1.png', '2021-03-16 21:03:36', NULL),
-('2', '2', 'static/uploads/cats2.jpeg', '2021-03-16 21:04:27', NULL),
-('3', '3', 'static/uploads/cats3.jpeg', '2021-03-16 21:51:56', NULL);
+INSERT INTO `images` (`id`, `blog_id`, `file_path`, `upload_date`, `update_by_id`, `main`) VALUES
+('1', '1', 'static/uploads/cats1.png', '2021-03-16 21:03:36', NULL, '1'),
+('2', '2', 'static/uploads/cats2.jpeg', '2021-03-16 21:04:27', NULL, '1'),
+('3', '2', 'static/uploads/cats3.jpeg', '2021-03-16 21:51:56', NULL, '0');
 
 
 
