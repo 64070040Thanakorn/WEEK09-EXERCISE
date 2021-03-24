@@ -87,7 +87,7 @@ const content = req.body.content;
 const status = req.body.status;
 const pinned = req.body.pinned;
 ```
-6. สร้าง transection ขึ้นมา
+6. สร้าง transaction ขึ้นมา
 
 ```javascript
 const conn = await pool.getConnection()
@@ -111,7 +111,7 @@ const blogId = results[0].insertId;
 await conn.query("INSERT INTO images(blog_id, file_path) VALUES(?, ?);",[blogId, file.path])
 ```
 
-11. Commit Transection
+11. Commit Transaction
 ```javascript
 conn.commit()
 ```
@@ -121,7 +121,7 @@ conn.commit()
 res.send("success!");
 ```
 
-13. หากการ Create เกิด Error ขึ้นมาขั้นตอนใดขั้นตอนหนึ่ง ให้ทำการ Rollback Transection และ Return error ออกมา
+13. หากการ Create เกิด Error ขึ้นมาขั้นตอนใดขั้นตอนหนึ่ง ให้ทำการ Rollback Transaction และ Return error ออกมา
 ```javascript
 await conn.rollback();
 return next(error)
@@ -181,7 +181,7 @@ router.post('/blogs/update/:id', (req, res, next) => {
 }
 ```
 
-2. สร้าง transection ขึ้นมา
+2. สร้าง transaction ขึ้นมา
 
 ```javascript
 const conn = await pool.getConnection()
@@ -205,7 +205,7 @@ if (file) {
 await conn.query('UPDATE blogs SET title=?,content=?, pinned=?, blogs.like=?, create_by_id=? WHERE id=?', [req.body.title, req.body.content, req.body.pinned, req.body.like, null, req.params.id])
 ```
 
-7. Commit Transection
+7. Commit Transaction
 ```javascript
 conn.commit()
 ```
@@ -215,7 +215,7 @@ conn.commit()
 res.json({ message: "Update Blog id " + req.params.id + " Complete" })
 ```
 
-9. หากการ Update เกิด Error ขึ้นมาขั้นตอนใดขั้นตอนหนึ่ง ให้ทำการ Rollback Transection และ Return error ออกมา
+9. หากการ Update เกิด Error ขึ้นมาขั้นตอนใดขั้นตอนหนึ่ง ให้ทำการ Rollback Transaction และ Return error ออกมา
 ```javascript
 await conn.rollback();
 return next(error)
@@ -261,7 +261,7 @@ router.delete('/blogs/:id', function (req, res) {
   // delete blog code here
 });
 ```
-2. สร้าง Transection ขึ้นมา
+2. สร้าง Transaction ขึ้นมา
 ```javascript
 const conn = await pool.getConnection()
 await conn.beginTransaction();
@@ -286,7 +286,7 @@ await conn.query('DELETE FROM blogs WHERE id=?;', [req.params.id]) // delete blo
 await conn.query('DELETE FROM images WHERE blog_id=?;', [req.params.id]) // delete image
 ```
 
-7. Commit Transection
+7. Commit Transaction
 ```javascript
 conn.commit()
 ```
@@ -296,7 +296,7 @@ conn.commit()
 res.json({ message: 'Delete Blog id ' + req.params.id + ' complete' })
 ```
 
-9. หากการ Delete เกิด Error ขึ้นมาขั้นตอนใดขั้นตอนหนึ่ง ให้ทำการ Rollback Transection และ Return error ออกมา
+9. หากการ Delete เกิด Error ขึ้นมาขั้นตอนใดขั้นตอนหนึ่ง ให้ทำการ Rollback Transaction และ Return error ออกมา
 ```javascript
 await conn.rollback();
 return next(error)
