@@ -164,6 +164,9 @@ router.post('/blogs', upload.single('myImage'), async function (req, res, next) 
     } catch (err) {
       await conn.rollback();
       next(err);
+    } finally {
+      console.log('finally')
+      conn.release();
     }
 });
 ```
@@ -244,6 +247,9 @@ router.put('/blogs/:id', upload.single('myImage'), async (req, res, next) => {
   } catch (error) {
     await conn.rollback();
     return next(error)
+  } finally {
+    console.log('finally')
+    conn.release();
   }
 });
 ```
