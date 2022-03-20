@@ -1,7 +1,7 @@
-# WEEK09-EXERCISE 
+# WEEK09-TUTORIAL
 
-แบบฝึกหัดสัปดาห์ที่ 9 Express / MySql
-
+เรามาลองทำโจทย์ 2 ข้อนี้กันดูนะครับ
+เป็นตัวอย่างเพิ่มเติมจากใน Youtube Playlist: [Express + MySQL Part 1](https://youtube.com/playlist?list=PLBKsi1O7E5MwJUDp2-JmjidwkgRL20cty)
 1. สร้าง Route สำหรับการเพิ่ม like โดยจะ**เพิ่มขึ้นทีละ 1** เมื่อถูกยิง Request โดยจะส่ง `blogId` ของ Blog ไปเพื่อบอกว่าจะเพิ่ม like ให้ Blog ไหน
 * **Method :** PUT
 * **URL :**  /blogs/addlike/:blogId
@@ -57,7 +57,12 @@ ____
 ```
 > hint : ตอนที่ Query SQL ให้ใช้ LIKE ดูการใช้ได้[ที่นี่](https://www.w3schools.com/sql/sql_like.asp)
 ___
-3. สร้าง Route สำหรับเพิ่มข้อมูล comment (`blogId` คือ id ของ Blog ที่ต้องการเพิ่ม Comment)
+
+# WEEK09-EXERCISE 
+
+แบบฝึกหัดสัปดาห์ที่ 9 Express / MySql
+
+1. สร้าง Route สำหรับเพิ่มข้อมูล comment (`blogId` คือ id ของ Blog ที่ต้องการเพิ่ม Comment)
 * **Method :** POST
 * **URL :**  /:blogId/comments
 * **Body**
@@ -78,7 +83,7 @@ ___
 
 > hint : ใน sql สามารถใช้ CURRENT_TIMESTAMP เพื่อให้บันทึกเวลาปัจจุบันได้เลย
 ___
-4. สร้าง Route สำหรับแก้ไขข้อมูลของ Comment โดย `commentId` คือ id ***ของ comment ที่ต้องการแก้ไข***
+2. สร้าง Route สำหรับแก้ไขข้อมูลของ Comment โดย `commentId` คือ id ***ของ comment ที่ต้องการแก้ไข***
 * **Method :** PUT
 * **URL :**  /comments/:commentId
 * **Body**
@@ -99,7 +104,7 @@ ___
 }
 ```
 ___
-5. สร้าง Route สำหรับลบ comment โดย `commentId` คือ id ***ของ comment ที่ต้องการลบ***
+3. สร้าง Route สำหรับลบ comment โดย `commentId` คือ id ***ของ comment ที่ต้องการลบ***
 * **Method :** DELETE
 * **URL :**  /comments/:commentId
 * **Response**
@@ -109,7 +114,7 @@ ___
 }
 ```
 
-6. สร้าง Route สำหรับเพิ่มยอด like ให้กับ comment **เพิ่มขึ้นทีละ 1** เมื่อถูกยิง Request โดย `commentId` คือ id ***ของ comment ที่ต้องการเพิ่มยอดไลค์***
+4. สร้าง Route สำหรับเพิ่มยอด like ให้กับ comment **เพิ่มขึ้นทีละ 1** เมื่อถูกยิง Request โดย `commentId` คือ id ***ของ comment ที่ต้องการเพิ่มยอดไลค์***
 * **Method :** PUT
 * **URL :**  /comments/addlike/:commentId
 * **Response**
