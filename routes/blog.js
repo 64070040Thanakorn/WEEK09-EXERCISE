@@ -4,11 +4,13 @@ const pool = require("../config");
 
 router = express.Router();
 
-router.get("/blogs/search", async function (req, res, next) {
+// For tutorial 1
+router.post("/blogs/addlike/:blogId", async function (req, res, next) {
   // Your code here
 });
 
-router.post("/blogs/addlike/:blogId", async function (req, res, next) {
+// For tutorial 2
+router.get("/blogs/search", async function (req, res, next) {
   // Your code here
 });
 
@@ -17,28 +19,9 @@ router.post("/create", async function (req, res, next) {
   // Your code here
 });
 
-
+// For blog detail page
 router.get("/detail/:blogId", function (req, res, next) {
-  const promise1 = pool.query("SELECT * FROM blogs WHERE id=?", [
-    req.params.id,
-  ]);
-  const promise2 = pool.query("SELECT * FROM comments WHERE blog_id=?", [
-    req.params.id,
-  ]);
-
-  Promise.all([promise1, promise2])
-    .then((results) => {
-      const blogs = results[0];
-      const comments = results[1];
-      res.render("blogs/detail", {
-        blog: blogs[0][0],
-        comments: comments[0],
-        error: null,
-      });
-    })
-    .catch((err) => {
-      return next(err);
-    });
+  // Your code here
 });
 
 // For updating blog
