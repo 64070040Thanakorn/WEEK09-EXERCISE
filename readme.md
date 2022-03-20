@@ -4,7 +4,7 @@
 เป็นตัวอย่างเพิ่มเติมจากใน Youtube Playlist: [Express + MySQL Part 1](https://youtube.com/playlist?list=PLBKsi1O7E5MwJUDp2-JmjidwkgRL20cty)
 
 ## Tutorial 1
-สร้าง Route สำหรับการเพิ่ม like โดยจะ**เพิ่มขึ้นทีละ 1** เมื่อถูกยิง Request โดยจะส่ง `blogId` ของ Blog ไปเพื่อบอกว่าจะเพิ่ม like ให้ Blog ไหน
+สร้าง route สำหรับการเพิ่ม like โดยจะ**เพิ่มขึ้นทีละ 1** เมื่อถูกยิง request โดยจะส่ง `blogId` ของ blog ไปเพื่อบอกว่าจะเพิ่ม like ให้ blog ไหน
 * **Method :** PUT
 * **URL :**  /blogs/addlike/:blogId
 * **Response :** 
@@ -109,7 +109,8 @@ router.post("/blogs/addlike/:blogId", async function (req, res, next) {
 ```
 ____
 ## Tutorial 2
-สร้าง Route สำหรับการค้าหาชื่อ Blog ที่มีอยู่ใน Database โดยผลลัพท์จากการ Search จะมีแค่ Blog ที่มีข้อความจาก params `search` โดยในตัวอย่างจะเป็นการ Search ด้วยคำว่า web จะสังเกตว่า Blog ที่ออกมาทุกอันจะมีคำว่า web อยู่ใน Title ด้วย (Response ยังไม่ต้องดึงข้อมูลรูปออกมา เอาแค่ข้อมูลที่อยู่ในตาราง blog)
+สร้าง route สำหรับการค้าหาชื่อ blog ที่มีอยู่ใน database โดยผลลัพท์จากการ search จะมีแค่ blog ที่มีคำที่ส่งมากับ req.query อยู่ใน `title` โดยในตัวอย่างจะเป็นการค้นหาด้วยคำว่า "web" จะสังเกตว่า blog ที่ออกมาทุกอันจะมีคำว่า web อยู่ใน `title` ด้วย
+
 * **Method :** GET
 * **URL :**  /blogs/search
 * **Example :** blogs/search?search=web
@@ -121,41 +122,130 @@ ____
             "id": 4,
             "title": "Web Pro",
             "content": "Web Pro is easy",
+            "status": "0",
             "pinned": 0,
             "like": 0,
             "create_date": "2021-03-14T17:00:00.000Z",
-            "create_by_id": null,
-            "status": null
+            "create_by_id": null
         },
         {
             "id": 8,
             "title": "webprograming",
             "content": "i like a webprograming",
+            "status": "0",
             "pinned": 0,
             "like": 0,
             "create_date": "2021-03-14T17:00:00.000Z",
-            "create_by_id": null,
-            "status": null
+            "create_by_id": null
         },
         {
             "id": 10,
             "title": "Make Website from node js",
             "content": "Hey guy! Welcome back to webpro",
+            "status": "0",
             "pinned": 0,
             "like": 0,
             "create_date": "2021-03-14T17:00:00.000Z",
-            "create_by_id": null,
-            "status": "0"
+            "create_by_id": null
         }
     ]
 }
 ```
 > hint : ตอนที่ Query SQL ให้ใช้ LIKE ดูการใช้ได้[ที่นี่](https://www.w3schools.com/sql/sql_like.asp)
+
+### Step 1:
+- เปิดไฟล์ routes/blog.js
+- เราจะมาแก้ไข route ในส่วนนี้กัน
+
+```javascript
+router.post("/blogs/search", async function (req, res, next) {
+  // Your code here
+});
+```
+### Step 2:
+- เพิ่ม code สำหรับค้นหา blog ตามคำค้นที่ส่งมากับ `req.query.search`
+```javascript
+
+router.get("/blogs/search", async function (req, res, next) {
+-  // Your code here
++  try{
++    // ค้นหาใน field title ของตาราง blogs โดยใช้ SELECT * FROM blogs WHERE title LIKE '%คำค้นหา%'
++    const [rows, fields] = await pool.query("SELECT * FROM blogs WHERE title LIKE ?", [
++      `%${req.query.search}%`,
++    ]);
++    // return json ของรายการ blogs
++    return res.json(rows);
++
++  } catch (err) {
++    console.log(err)
++    return next(err);
++  }
+});
+```
+
+### Step 3:
+- เรามาลองทำเพิ่มนิดหน่อยกัน ... ไหนๆ ทำมาขนาดนี้ เราไปแก้ route '/' ในไฟล์ routes/index.ejs เพื่อให้สามารถค้นหา title ของ blog ได้ (แทนที่จะค้นหาด้วย route '/blogs/search' เราไปค้นหาใน route '/' เลย)
+- เปิดไฟล์ routes/index.js และแก้ไข code ใน route '/' ดังนี้
+
+```javascript
+router.get("/", async function (req, res, next) {
+  try {
+-    const [rows, fields] = await pool.query(
+-      `SELECT a.*, b.file_path FROM blogs AS a LEFT JOIN 
+-      (SELECT * FROM images WHERE main=1) AS b ON a.id = b.blog_id;`
+-    );
++    let query = `SELECT a.*, b.file_path FROM blogs AS a LEFT JOIN 
++    (SELECT * FROM images WHERE main=1) AS b ON a.id = b.blog_id`
++    let params = []
++    if (req.query.search){
++      query = query + ` WHERE a.title LIKE ?`
++      params = [`%${req.query.search}%`]
++    }
++    const [rows, fields] = await pool.query(query, params);
+-    return res.render("index", { blogs: rows });
++    return res.render("index", { 
++      search: req.query.search || '', 
++      blogs: rows 
++    });
+  } catch (err) {
+    return next(err)
+  }
+});
+```
+
+### Step 4:
+- เพิ่ม input box ในหน้า views/index.ejs พร้อมกับปุ่มค้นหา โดยเมื่อกดปุ่มให่ส่ง GET request ไปที่ route '/'
+```ejs
+<section class="section" id="app">
+  <div class="content">
++   <form method="GET" action="/">
++   <div class="columns">
++     <div class="column is-4 is-offset-3">
++       <input class="input" type="text" name="search" placeholder="ค้นชื่อบทความ" value="<%= search %>">
++     </div>
++     <div class="column is-2">
++       <input class="button" type="submit" value="Search">
++     </div>
++   </div>
++   </form>
+    <div class="columns is-multiline">
+      <% for (let blog of blogs) { %>
+        <div class="column is-3">
+        ...
+        </div>
+      <% } %>
+    </div>
+</section>
+```
+
 ___
 
 # WEEK09-EXERCISE 
 
 แบบฝึกหัดสัปดาห์ที่ 9 Express / MySql
+
+### หมายเหตุ: ทุกข้อให้ทำเฉพาะ route ไม่ต้องทำไฟล์ .ejs - ใช้ Postman ทดสอบ
+#### (แบบฝึกหัดสัปดาห์นี้เน้นการใช้งาน MySQL ไม่ต้องทำไฟล์ .ejs)
 
 1. สร้าง Route สำหรับเพิ่มข้อมูล comment (`blogId` คือ id ของ Blog ที่ต้องการเพิ่ม Comment)
 * **Method :** POST
@@ -172,7 +262,7 @@ ___
 
 ```javascript
 {
-    "message":"Add Comment at Blog id 1"
+    "message":"A new comment is added (ID: 1)" // แสดง ID ของ comment ที่เพิ่งถูก add
 }
 ```
 
@@ -188,14 +278,21 @@ ___
     "like": 0,
     "comment_date": "2021-12-31",
     "comment_by_id": null,
-    "blog_id": 1 // blog id
+    "blog_id": 1
 }
 ```
 * **Response**
 
 ```javascript
 {
-    "message": "Edit Comment at id 1"
+    "message": "Comment ID 1 is updated.",
+    "comment": {
+      "comment": "edit comment",
+      "like": 0,
+      "comment_date": "2021-12-31",
+      "comment_by_id": null,
+      "blog_id": 1
+    } //ดึงข้อมูล comment ที่เพิ่งถูก update ออกมา และ return ใน response กลับไปด้วย
 }
 ```
 ___
@@ -205,7 +302,7 @@ ___
 * **Response**
 ```javascript
 {
-    "message": "Delete Comment id 1 Comlete"
+    "message": "Comment ID 1 is deleted."
 }
 ```
 
@@ -215,7 +312,9 @@ ___
 * **Response**
 ```javascript
 {
-    "message":"Add like in Comment id 2, Current Like is 12" // 12 is a number of like after add like
+    "blogId": 11
+    "commentId": 20
+    "likeNum": 5 //5 คือจำนวน like ของ comment ที่มี id = 20 หลังจาก +1 like แล้ว
 }
 ```
 
