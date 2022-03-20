@@ -3,7 +3,8 @@
 เรามาลองทำโจทย์ 2 ข้อนี้กันดูนะครับ
 เป็นตัวอย่างเพิ่มเติมจากใน Youtube Playlist: [Express + MySQL Part 1](https://youtube.com/playlist?list=PLBKsi1O7E5MwJUDp2-JmjidwkgRL20cty)
 
-1. สร้าง Route สำหรับการเพิ่ม like โดยจะ**เพิ่มขึ้นทีละ 1** เมื่อถูกยิง Request โดยจะส่ง `blogId` ของ Blog ไปเพื่อบอกว่าจะเพิ่ม like ให้ Blog ไหน
+## Tutorial 1
+สร้าง Route สำหรับการเพิ่ม like โดยจะ**เพิ่มขึ้นทีละ 1** เมื่อถูกยิง Request โดยจะส่ง `blogId` ของ Blog ไปเพื่อบอกว่าจะเพิ่ม like ให้ Blog ไหน
 * **Method :** PUT
 * **URL :**  /blogs/addlike/:blogId
 * **Response :** 
@@ -107,7 +108,8 @@ router.post("/blogs/addlike/:blogId", async function (req, res, next) {
 });
 ```
 ____
-2. สร้าง Route สำหรับการค้าหาชื่อ Blog ที่มีอยู่ใน Database โดยผลลัพท์จากการ Search จะมีแค่ Blog ที่มีข้อความจาก params `search` โดยในตัวอย่างจะเป็นการ Search ด้วยคำว่า web จะสังเกตว่า Blog ที่ออกมาทุกอันจะมีคำว่า web อยู่ใน Title ด้วย (Response ยังไม่ต้องดึงข้อมูลรูปออกมา เอาแค่ข้อมูลที่อยู่ในตาราง blog)
+## Tutorial 2
+สร้าง Route สำหรับการค้าหาชื่อ Blog ที่มีอยู่ใน Database โดยผลลัพท์จากการ Search จะมีแค่ Blog ที่มีข้อความจาก params `search` โดยในตัวอย่างจะเป็นการ Search ด้วยคำว่า web จะสังเกตว่า Blog ที่ออกมาทุกอันจะมีคำว่า web อยู่ใน Title ด้วย (Response ยังไม่ต้องดึงข้อมูลรูปออกมา เอาแค่ข้อมูลที่อยู่ในตาราง blog)
 * **Method :** GET
 * **URL :**  /blogs/search
 * **Example :** blogs/search?search=web
