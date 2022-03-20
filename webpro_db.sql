@@ -89,9 +89,9 @@ INSERT INTO `comments` (`id`, `blog_id`, `comment`, `like`, `comment_date`, `com
 ('2', '1', 'Cool :)', '0', '2021-03-09 05:14:54', NULL);
 
 INSERT INTO `images` (`id`, `blog_id`, `file_path`, `upload_date`, `update_by_id`, `main`) VALUES
-('1', '1', 'static/uploads/cats1.png', '2021-03-16 21:03:36', NULL, '1'),
-('2', '2', 'static/uploads/cats2.jpeg', '2021-03-16 21:04:27', NULL, '1'),
-('3', '2', 'static/uploads/cats3.jpeg', '2021-03-16 21:51:56', NULL, '0');
+('1', '1', '/uploads/cats1.png', '2021-03-16 21:03:36', NULL, '1'),
+('2', '2', '/uploads/cats2.jpeg', '2021-03-16 21:04:27', NULL, '1'),
+('3', '2', '/uploads/cats3.jpeg', '2021-03-16 21:51:56', NULL, '0');
 
 
 

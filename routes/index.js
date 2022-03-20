@@ -9,7 +9,6 @@ router.get("/", async function (req, res, next) {
       `SELECT a.*, b.file_path FROM blogs AS a LEFT JOIN 
       (SELECT * FROM images WHERE main=1) AS b ON a.id = b.blog_id;`
     );
-    console.log(rows)
     return res.render("index", { blogs: rows });
   } catch (err) {
     return next(err)
