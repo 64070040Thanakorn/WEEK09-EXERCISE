@@ -18,7 +18,7 @@ router.post("/create", async function (req, res, next) {
 });
 
 
-router.get("/blogs/:blogId", function (req, res, next) {
+router.get("/detail/:blogId", function (req, res, next) {
   const promise1 = pool.query("SELECT * FROM blogs WHERE id=?", [
     req.params.id,
   ]);
