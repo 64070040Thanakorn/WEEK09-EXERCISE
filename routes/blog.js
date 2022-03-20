@@ -39,7 +39,7 @@ router.post("/create", async function (req, res, next) {
 });
 
 
-router.get("/update/:blogId", function (req, res, next) {
+router.get("/detail/:blogId", function (req, res, next) {
   const promise1 = pool.query("SELECT * FROM blogs WHERE id=?", [
     req.params.id,
   ]);
@@ -63,13 +63,13 @@ router.get("/update/:blogId", function (req, res, next) {
 });
 
 // For updating blog
-router.put("/delete/:blogId", function (req, res) {
+router.put("/update/:blogId", function (req, res) {
   // Your code here
   return;
 });
 
 // For deleting blog
-router.delete("/blogs/:id", function (req, res) {
+router.delete("/delete/:id", function (req, res) {
   // Your code here
   return;
 });
