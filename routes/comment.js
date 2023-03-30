@@ -12,10 +12,16 @@ router.get('/:blogId/comments', function(req, res, next){
 router.post('/:blogId/comments', async function(req, res, next){
 
     const blog_id = req.params.blogId
+
+    const  {
+        comment, like, comment_by_id
+    } = req.body
+
     const [rows, fields] = await pool.query(
         'INSERT INTO comments (blog_id ,comment, comments.like, comment_by_id) VALUES(? ,?, ?, ?);',
-        [blog_id ,'new comment', 0, null]
+        [blog_id ,comment, like, comment_by_id]
     )
+
     return res.json({
         "message":`A new comment is added (ID: ${rows.insertId})`
     })
@@ -23,9 +29,13 @@ router.post('/:blogId/comments', async function(req, res, next){
 
 // Update comment
 router.put('/comments/:commentId', async function(req, res, next){
+    const {
+        comment, like, comment_date, comment_by_id, blog_id
+    } = req.body
+
     const [rows, fields] = await pool.query(
         `UPDATE comments SET comment = ?, comments.like = ?, comment_date = ?, comment_by_id = ?, blog_id = ? WHERE id = ${req.params.commentId}`,
-        ['edit comment', 0, '2021-12-31', null, 1]
+        [comment, like, comment_date, comment_by_id, blog_id]
     )
 
     const [rows1, fields1] = await pool.query(`SELECT comment, comments.like, comment_date, comment_by_id, blog_id FROM comments WHERE id = ${req.params.commentId}`)
